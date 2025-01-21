@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Abouts on BachirLOG</title>
+    <link>/about/</link>
+    <description>BachirLOG (Abouts)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+      
+
+      
+    
+
+    
+    <lastBuildDate>Thu, 26 Dec 2024 13:43:43 +0100</lastBuildDate>
+    
+    <atom:link href="/about/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About</title>
+      <link>/about/about/</link>
+      <pubDate>Thu, 26 Dec 2024 13:43:43 +0100</pubDate>
+      
+      <guid>/about/about/</guid>
+      <description>&lt;p&gt;Bienvenue sur BachirBlog, Je m&amp;rsquo;appelle Bachir Moussa Tari Bako, je suis ingénieur développement logiciel
+développeur Java passionné par la technologie et l&amp;rsquo;innovation.&lt;/p&gt;
+&lt;p&gt;Mon parcours professionnel m&amp;rsquo;a permis de travailler comme consultant pour
+des entreprises, où j&amp;rsquo;ai pu relever des défis techniques variés et enrichissants.&lt;/p&gt;
+&lt;p&gt;J&amp;rsquo;ai créé ce blog pour partager mes connaissances et mes expériences dans le domaine de la programmation et plus encore.&lt;/p&gt;
+&lt;p&gt;Je vous souhaite une bonne lecture et n&amp;rsquo;hésitez pas à me contacter pour toute question ou suggestion.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

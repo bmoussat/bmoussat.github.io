@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+
+
+<html lang="en-us" data-theme="">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=45787&amp;path=livereload" data-no-instant defer></script>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>Utilisation de localStack S3 avec une application Spring Boot - BachirLOG</title>
+
+<meta name="description" content="This is bold text, and this is emphasized text.">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="http://localhost:45787/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="http://localhost:45787/favicon.png">
+
+
+
+
+
+
+    
+
+
+
+    
+
+
+
+<style>
+  body {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<noscript>
+  <style>
+    body {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.4c42aa0abeac804c4933c54677c449cea1f723caae778425d031e98565a0cdef.css" integrity="sha256-TEKqCr6sgExJM8VGd8RJzqH3I8qud4Ql0DHphWWgze8=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.9c1888ebff42c0224ce04dac10cb2c401f1b77f54f78e8d87d73c3bed781c263.css" integrity="sha256-nBiI6/9CwCJM4E2sEMssQB8bd/VPeOjYfXPDvteBwmM=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.acd606c0fce58853afe0248d37bb41acbbcdd8b1aca2412b6c0fa760da0137f3.css" integrity="sha256-rNYGwPzliFOv4CSNN7tBrLvN2LGsokErbA&#43;nYNoBN/M=">
+    
+
+
+
+
+
+
+
+    
+    
+      
+    
+
+    
+      
+        <link rel="stylesheet" href="/css/style.min.f18cd3add29ae9f3e51aff55fd97ff5c953a777ee889183af671a36618b527ee.css" integrity="sha256-8YzTrdKa6fPlGv9V/Zf/XJU6d37oiRg69nGjZhi1J&#43;4=" crossorigin="anonymous">
+      
+    
+
+    
+    
+      
+    
+
+    
+      
+        <link rel="stylesheet" href="/css/style.min.aa533fade43ed9c58d84bd79f05db0139dbf556e01cb3f0f96f858442166b734.css" integrity="sha256-qlM/reQ&#43;2cWNhL158F2wE52/VW4Byz8PlvhYRCFmtzQ=" crossorigin="anonymous">
+      
+    
+
+
+
+
+
+
+    
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <script src="/js/script.672e2309c296e07c18bcd08b28d797a56222ff941d65f308fba3158c44885b14.js" type="text/javascript" charset="utf-8" integrity="sha256-Zy4jCcKW4HwYvNCLKNeXpWIi/5QdZfMI&#43;6MVjESIWxQ="></script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header">
+            
+                <div class="header-top">
+    <div class="header-top-left">
+        <h1 class="site-title noselect">
+    <a href="/">BachirLOG</a>
+</h1>
+
+        
+
+
+
+    
+
+
+
+    
+
+
+
+    
+        <div class="theme-switcher">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-sun-high"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.828 14.828a4 4 0 1 0 -5.656 -5.656a4 4 0 0 0 5.656 5.656z" /><path d="M6.343 17.657l-1.414 1.414" /><path d="M6.343 6.343l-1.414 -1.414" /><path d="M17.657 6.343l1.414 -1.414" /><path d="M17.657 17.657l1.414 1.414" /><path d="M4 12h-2" /><path d="M12 4v-2" /><path d="M20 12h2" /><path d="M12 20v2" /></svg>
+
+
+</span>
+
+        </div>
+    
+
+    <script>
+        const STORAGE_KEY = 'user-color-scheme'
+        const defaultTheme = "auto"
+
+        let currentTheme
+        let switchButton
+        let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+        function switchTheme(e) {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            if (localStorage) localStorage.setItem(STORAGE_KEY, currentTheme);
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        const autoChangeScheme = e => {
+            currentTheme = e.matches ? 'dark' : 'light'
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            switchButton = document.querySelector('.theme-switcher')
+            currentTheme = detectCurrentScheme()
+
+            if (currentTheme === 'auto') {
+                autoChangeScheme(autoDefinedScheme);
+                autoDefinedScheme.addListener(autoChangeScheme);
+            } else {
+                document.documentElement.setAttribute('data-theme', currentTheme)
+            }
+
+            if (switchButton) {
+                switchButton.addEventListener('click', switchTheme, false)
+            }
+
+            showContent();
+        })
+
+        function detectCurrentScheme() {
+            if (localStorage !== null && localStorage.getItem(STORAGE_KEY)) {
+                return localStorage.getItem(STORAGE_KEY)
+            }
+            if (defaultTheme) {
+                return defaultTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function showContent() {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = 1;
+        }
+
+        function changeGiscusTheme (theme) {
+            function sendMessage(message) {
+              const iframe = document.querySelector('iframe.giscus-frame');
+              if (!iframe) return;
+              iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+            }
+
+            sendMessage({
+              setConfig: {
+                theme: theme
+              }
+            });
+        }
+    </script>
+
+
+        <ul class="social-icons noselect">
+
+
+    
+        <li>
+            <a href="https://github.com/bmoussat/" title="Github" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        <li>
+            <a href=" https://www.linkedin.com/in/bachir-moussa-tari-bako-99668354/" title="Linkedin" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-linkedin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M8 11l0 5" /><path d="M8 8l0 .01" /><path d="M12 16l0 -5" /><path d="M16 16v-3a2 2 0 0 0 -4 0" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        <li>
+            <a href="bachirtarimoussa|ATATgmail.com" title="Email" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-mail"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+
+
+    <li>
+            <a href="/index.xml" title="RSS" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rss"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M4 4a16 16 0 0 1 16 16" /><path d="M4 11a9 9 0 0 1 9 9" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+</ul>
+
+    </div>
+    <div class="header-top-right">
+
+    </div>
+</div>
+
+
+    <nav class="noselect">
+        
+        
+        <a class="" href="http://localhost:45787/" title="">Home</a>
+        
+        <a class="" href="http://localhost:45787/posts/" title="">Posts</a>
+        
+        <a class="" href="http://localhost:45787/tags/" title="">Tags</a>
+        
+        <a class="" href="http://localhost:45787/about/" title="">About</a>
+        
+    </nav>
+
+
+
+
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1">
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">Utilisation de localStack S3 avec une application Spring Boot</h1>
+                
+
+            </header>
+            
+
+    
+
+
+
+<div class="post-info noselect">
+    
+        <div class="post-date dt-published">
+            <time datetime="2019-10-04">2019-10-04</time>
+            
+        </div>
+    
+
+    <a class="post-hidden-url u-url" href="/posts/localstack/">/posts/localstack/</a>
+    <a href="http://localhost:45787/" class="p-name p-author post-hidden-author h-card" rel="me">map[name:BachirLOG]</a>
+
+
+    <div class="post-taxonomies">
+        
+        
+            <ul class="post-tags">
+                
+                    
+                    <li><a href="/tags/java/">#Java</a></li>
+                
+                    
+                    <li><a href="/tags/spring-boot/">#Spring-Boot</a></li>
+                
+                    
+                    <li><a href="/tags/aws/">#Aws</a></li>
+                
+                    
+                    <li><a href="/tags/localstack/">#Localstack</a></li>
+                
+                    
+                    <li><a href="/tags/s3/">#S3</a></li>
+                
+                    
+                    <li><a href="/tags/docker/">#Docker</a></li>
+                
+                    
+                    <li><a href="/tags/thymeleaf/">#Thymeleaf</a></li>
+                
+            </ul>
+        
+        
+    </div>
+</div>
+
+        </div>
+        
+
+  
+  
+
+
+
+
+  
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#pourquoi-localstack-">Pourquoi Localstack ?</a></li>
+    <li><a href="#1--installation-initiales">1- Installation initiales</a>
+      <ul>
+        <li><a href="#11---aws-cli-installation-et-configuration">1.1-  aws-cli, installation et configuration</a></li>
+        <li><a href="#12--configuration-de-aws-cli">1.2- configuration de aws-cli</a></li>
+        <li><a href="#13--docker-installation">1.3- Docker, Installation</a></li>
+        <li><a href="#14--localstack-installation-et-configuration">1.4- LocalStack, Installation et configuration</a></li>
+      </ul>
+    </li>
+    <li><a href="#2--création-des-scripts-de-lancement">2- Création des scripts de lancement</a>
+      <ul>
+        <li><a href="#21-le-script-start_localawssh">2.1 Le script <code>start_localaws.sh</code></a></li>
+        <li><a href="#22-le-script-stop_localawssh">2.2 Le script <code>stop_localaws.sh</code></a></li>
+      </ul>
+    </li>
+    <li><a href="#3--lapplication-spring-boot">3- L’application Spring Boot</a></li>
+    <li><a href="#démo">Démo</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+
+
+
+<script>
+  var toc = document.querySelector(".toc");
+  if (toc) {
+    toc.addEventListener("click", function () {
+      if (event.target.tagName !== "A") {
+        event.preventDefault();
+        if (this.open) {
+          this.open = false;
+          this.classList.remove("expanded");
+        } else {
+          this.open = true;
+          this.classList.add("expanded");
+        }
+      }
+    });
+  }
+</script>
+
+        <div class="content e-content">
+            <p>Dans cet article, nous allons vous montrer comment tester votre application Spring Boot qui utilise
+aws s3 en local avec localstack.</p>
+<p>Dans un premier temps, nous allons créer un bucket s3, puis utiliser ce bucket pour stocker des
+fichiers, en simulant aws en local avec localstack.</p>
+<p>Pour cela, nous devrions :</p>
+<ul>
+<li>lancer localstack dans un conteneur docker</li>
+<li>créer notre bucket</li>
+<li>lancer notre application, pour lire le bucket s3
+local.</li>
+</ul>
+<p>Nous aurons besoin des outils suivants :</p>
+<table>
+  <thead>
+      <tr>
+          <th>coté back-end</th>
+          <th>coté Front-end</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>AWS-cli</td>
+          <td>thymeleaf</td>
+      </tr>
+      <tr>
+          <td>Docker</td>
+          <td>bootstrap</td>
+      </tr>
+      <tr>
+          <td>Localstack</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Spring Boot</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Lombok</td>
+          <td></td>
+      </tr>
+  </tbody>
+</table>
+<p>Dans cet article, nous avons utilisé le système d’exploitation Ubuntu.</p>
+<p>Vous pouvez trouver les sources de ce projet ici :
+<a href="https://github.com/bmoussat/s3demo">https://github.com/bmoussat/s3demo</a></p>
+<h2 id="pourquoi-localstack-" >
+<div>
+    <a href="#pourquoi-localstack-">
+        #
+    </a>
+    Pourquoi Localstack ?
+</div>
+</h2>
+<p>Localstack est un outil qui nous permet de simuler la plupart des services aws en local, donc pas
+besoin de se connecter sur la console aws, ce qui nous permet de :</p>
+<ul>
+<li>travailler hors connexion</li>
+<li>tester nos applications sans coût,</li>
+<li>s’isoler par rapport aux autres développeurs concernant les tests et l’utilisation des ressources,
+chacun a ses propres services en local,</li>
+<li>tout effacer et tout refaire sans difficulté si rien ne vous convient sans coût supplémentaire :-).</li>
+</ul>
+<h2 id="1--installation-initiales" >
+<div>
+    <a href="#1--installation-initiales">
+        #
+    </a>
+    1- Installation initiales
+</div>
+</h2>
+<h3 id="11---aws-cli-installation-et-configuration" >
+<div>
+    <a href="#11---aws-cli-installation-et-configuration">
+        ##
+    </a>
+    1.1-  aws-cli, installation et configuration
+</div>
+</h3>
+<p>aws-cli ou <em>Amazon Webservices commande line interface</em>, permet d’utiliser les services aws en
+ligne de commande.</p>
+<p>Pour l’installation d&rsquo;aws-cli, il faut entrer la commande suivante :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>      sudo snap install aws-cli --classic
+</span></span></code></pre></div><p>Pour tester si la aws command line interface est bien installée, taper <code>aws --version </code> dans votre
+console, normalement, vous verrez la version d&rsquo;aws-cli que vous avez installé s’afficher.</p>
+<h3 id="12--configuration-de-aws-cli" >
+<div>
+    <a href="#12--configuration-de-aws-cli">
+        ##
+    </a>
+    1.2- configuration de aws-cli
+</div>
+</h3>
+<p>LocalStack comme AWS a besoin des clés d’accès pour fonctionner, même s’il ne vérifie pas si ces
+clés sont bonnes ou pas, c&rsquo;est-à-dire que nous pouvons mettre de faux identifiants pour nos tests.</p>
+<p>Pour configurer aws-cli, entrez la commande suivante dans votre console <code>aws configure</code>, puis
+entrez les informations demandées.
+<br/><br/>
+<img src="/images/localstack/aws-configure.png" alt="aws configure"></p>
+<blockquote>
+<p>Pour information <code>Aws Access key ID</code>
+et <code>Aws secret Access key</code> sont les identifiants que vous récupérez lorsque vous créez un compte
+utilisateur appelé ‘IAM user’ dans le jargon aws.</p>
+</blockquote>
+<p>Pour plus d’information sur les IAM user voici un lien qui serait utile.</p>
+<p>C’est tout pour l’installation et la configuration de AWS-CLI.</p>
+<h3 id="13--docker-installation" >
+<div>
+    <a href="#13--docker-installation">
+        ##
+    </a>
+    1.3- Docker, Installation
+</div>
+</h3>
+<p>Docker est un conteneur qui permet d’exécuter vos applications correctement et avec le même
+comportement sur n’importe quel environnement, il permet aussi de déployer et de tester nos
+applications très rapidement.</p>
+<h4 id="pourquoi-utiliser-docker" >
+<div>
+    <a href="#pourquoi-utiliser-docker">
+        ###
+    </a>
+    Pourquoi utiliser Docker?
+</div>
+</h4>
+<p>LocalStack peut être lancé dans un conteneur docker ou directement sur la machine courante.
+Nous avons choisi de le lancer avec docker pour découvrir cette techno, donc pour voir un cas
+pratique d’utilisation de ce conteneur, car il est très utile et populaire.</p>
+<p><strong>Quelques avantages de docker :</strong></p>
+<ul>
+<li>pas besoin d’installer localstack sur la machine directement,</li>
+<li>simplifie la configuration</li>
+<li>isole les applications,</li>
+<li>reploiement rapide et simple des applications</li>
+</ul>
+<p>Pour installer Docker, entrez la commande suivante</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>snap install docker 
+</span></span></code></pre></div><p>ou</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt-get install docker.io
+</span></span></code></pre></div><p>C’est tout pour l’installation de docker, nous verrons par la suite comment le lancer pour localstack.</p>
+<p>Prochaine étape, installation et utilisation et configuration de localstack</p>
+<h3 id="14--localstack-installation-et-configuration" >
+<div>
+    <a href="#14--localstack-installation-et-configuration">
+        ##
+    </a>
+    1.4- LocalStack, Installation et configuration
+</div>
+</h3>
+<blockquote>
+<p>Nous avons besoin de python pip pour l’installation de localstack, nous vous laissons le soin de faire l&rsquo;installation selon la version de votre système.</p>
+</blockquote>
+<p>Pour installer localstack entré la commande suivante dans votre terminal :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install localstack
+</span></span></code></pre></div><p>Pour tester si localstack se lance bien, entrer la commande :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> localstack start --docker
+</span></span></code></pre></div><p>Cette commande nous permet de lancer localstack dans un conteneur docker.</p>
+<h2 id="2--création-des-scripts-de-lancement" >
+<div>
+    <a href="#2--cr%c3%a9ation-des-scripts-de-lancement">
+        #
+    </a>
+    2- Création des scripts de lancement
+</div>
+</h2>
+<blockquote>
+<p>Rapel : Notre objectif est de créer un bucket s3, puis utiliser ce bucket pour
+stocker des fichiers, en simulant aws en local utilisant localstack.</p>
+</blockquote>
+<p>Le script que nous allons créer, nous permettra d’automatiser le lancement de
+localstack et la création de notre <em>bucket s3</em>.</p>
+<p>Pour cela, nous allons utiliser <code>docker-compose.yml</code>, qui est un fichier que docker
+recherche dans le répertoire courant lorsque l’on utilise la commande <code>docker- compose</code>. Nous verrons un peu plus loin à quoi sert cette commande.</p>
+<p>Ce fichier nous permet de donner des instructions de configuration docker pour
+le lancement d’image docker, ici l’image que nous voulons lancer est celle de
+Localstack.</p>
+<p>Voici à quoi ressemble notre fichier <code>docker-compose.yml</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span>version: <span style="color:#5af78e">&#39;3.7&#39;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>services:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>  localstack:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>    image: localstack/localstack:latest
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    ports:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>      - <span style="color:#5af78e">&#34;4567-4585:4567-4585&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>    environment:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>      - <span style="color:#ff5c57">DEFAULT_REGION</span><span style="color:#ff6ac1">=</span>eu-central-1
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>      - <span style="color:#ff5c57">SERVICES</span><span style="color:#ff6ac1">=</span>s3:4572
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>    network_mode: <span style="color:#5af78e">&#34;host&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>    environment:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>      - <span style="color:#ff5c57">AWS_REGION</span><span style="color:#ff6ac1">=</span>eu-central-1
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>    volumes:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>      - <span style="color:#5af78e">&#39;./.localstack:/tmp/localstack&#39;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>      -
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span><span style="color:#5af78e">&#39;/var/run/docker.sock:/var/run/docker.sock&#39;</span>
+</span></span></code></pre></div><p><strong>Explication :</strong></p>
+<p>La ligne 5,
+nous permet d’utiliser la dernière version de l&rsquo;image localstack venant de DockerHub.</p>
+<p>La ligne 6,7,
+<code>Ports : &quot;4567-4585:4567-4585&quot;</code> correspondes aux ports exposés et la
+correspondance des ports côté docker et côté machine courante.</p>
+<p>La ligne 10, <code>SERVICES=s3:4572</code>
+permet de lancer le service s3 de localstack sur le port <code>4572</code>.
+Ici, nous définissons les services de localstack que nous voulons lancer <code>S3</code>. Si par
+exemple, nous voulons lancer les services sqs et/ou sns en plus, nous écrivons :</p>
+<p><code>SERVICES=s3,sqs,sns.</code></p>
+<h3 id="21-le-script-start_localawssh" >
+<div>
+    <a href="#21-le-script-start_localawssh">
+        ##
+    </a>
+    2.1 Le script <code>start_localaws.sh</code>
+</div>
+</h3>
+<p>Nous allons créer notre fichier de lancement de l’image localstack dans le
+conteneur docker ainsi que la création de notre bucket s3.</p>
+<p>Voici à quoi ressemble notre fichier <code>start_localaws.sh</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#78787e">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#78787e"></span>
+</span></span><span style="display:flex;"><span>docker-compose -p localaws up -d
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># waits  a few seconds for localstack docker container to start</span>
+</span></span><span style="display:flex;"><span>sleep <span style="color:#ff9f43">5</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># s3</span>
+</span></span><span style="display:flex;"><span>aws --endpoint-url<span style="color:#ff6ac1">=</span>http://localhost:4572 s3 mb s3://local-s3-bucket
+</span></span></code></pre></div><p><strong>Un peu d’explication :</strong></p>
+<p><code>docker-compose -p localaws up -d</code> : nous permet de lancer localstack dans un
+container docker en utilisant le fichier docker-compose.yml que nous avons créé
+plus haut.</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#5af78e">`</span>aws --endpoint-url<span style="color:#ff6ac1">=</span>http://localhost:4572 s3 mb s3://local-s3-bucket<span style="color:#5af78e">`</span>
+</span></span></code></pre></div><p>Est la commande aws-cli qui nous permet de créer un bucket s3 au nom de <code>local- s3-bucket</code></p>
+<p>Aprés avoir créé le fichier et donné les droits nécessaires pour l&rsquo;exécution,
+vous pouvez exécuter votre script pour lancer localstack et créer votre bucket
+s3 :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>./start_localaws.sh
+</span></span></code></pre></div><p><br/><br/>
+<img src="/images/localstack/start_localstack.png" alt="start_localstack"></p>
+<p><br/><br/>
+Super! Vous venez de lancer localstack, et vous avez créé un bucket s3 nommé
+<code>local-s3-bucket</code>.</p>
+<p>Pour vérifier que votre bucket s3 est bien créé, entrez la commande suivante :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>aws --endpoint-url<span style="color:#ff6ac1">=</span>http://localhost:4572 s3 ls
+</span></span></code></pre></div><p>Normalement, vous verrez la liste de vos bucket s3 local, ici en l&rsquo;occurrence :
+<code>local-s3-bucket</code>.
+<br><br>
+<img src="/images/localstack/ls_aws_s3_bucket.png" alt="ls_aws_s3_bucket"></p>
+<h3 id="22-le-script-stop_localawssh" >
+<div>
+    <a href="#22-le-script-stop_localawssh">
+        ##
+    </a>
+    2.2 Le script <code>stop_localaws.sh</code>
+</div>
+</h3>
+<p>Pour arrêter docker et donc nos services localstack, nous utilisons la commande
+suivante :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker-compose -p localaws down
+</span></span></code></pre></div><p>Nous allons mettre cette commande dans un fichier nommé <code>stop_localaws.sh</code> pour simplifier l&rsquo;arrêt
+de docker.</p>
+<p>Voici à quoi ressemblera notre fichier <code>stop_localasw.sh</code> :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#78787e">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#78787e"></span>
+</span></span><span style="display:flex;"><span>docker-compose -p localaws down
+</span></span></code></pre></div><p>Faisons un petit recap :</p>
+<p>Jusque-là, nous avons créé les fichiers suivants :</p>
+<p><img src="/images/localstack/script_folder.png" alt="script_folder"></p>
+<p>C&rsquo;est tout pour les scripts, passons à notre application Spring Boot utilisatrice de notre bucket s3.</p>
+<h2 id="3--lapplication-spring-boot" >
+<div>
+    <a href="#3--lapplication-spring-boot">
+        #
+    </a>
+    3- L’application Spring Boot
+</div>
+</h2>
+<p>Maintenant que nous avons créé notre bucket s3 local, utilisons ce stockage
+avec une application Spring Boot.</p>
+<blockquote>
+<p>Pour cet exemple, nous ne pouvons charger que des fichiers de moins de 125ko.</p>
+</blockquote>
+<p>Voici la structure de notre application Spring Boot</p>
+<p><img src="/images/localstack/spring_boot_project_structure.png" alt="Spring Boot project structure"></p>
+<p>Dans un premier temps, nous allons créer notre souscripteur au Endpoint
+localstack :</p>
+<p><code>EndpointRegistrar.java</code> :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span> <span style="color:#ff9f43">@UtilityClass</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">public</span> <span style="color:#ff5c57">class</span> <span style="color:#f3f99d">EndpointRegistrar</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff9f43">@Getter</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff9f43">@AllArgsConstructor</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff5c57">private</span> <span style="color:#ff5c57">enum</span> Service {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    S3(ServiceName.<span style="color:#57c7ff">S3</span>, <span style="color:#5af78e">&#34;http://localhost:4572&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff5c57">private</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#ff5c57">private</span> String defaultEndpoint;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff5c57">public</span> <span style="color:#ff5c57">static</span> String <span style="color:#57c7ff">getS3Endpoint</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> getServiceEndpoint(Service.<span style="color:#57c7ff">S3</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff5c57">private</span> <span style="color:#ff5c57">static</span> String <span style="color:#57c7ff">getServiceEndpoint</span>(<span style="color:#ff5c57">final</span> Service service) {
+</span></span><span style="display:flex;"><span>      <span style="color:#ff6ac1">try</span> {
+</span></span><span style="display:flex;"><span>          <span style="color:#ff6ac1">return</span> LocalstackDocker.<span style="color:#57c7ff">INSTANCE</span>.<span style="color:#57c7ff">endpointForService</span>(service.<span style="color:#57c7ff">getName</span>());
+</span></span><span style="display:flex;"><span>      } <span style="color:#ff6ac1">catch</span> (<span style="color:#ff5c57">final</span> Exception e) {
+</span></span><span style="display:flex;"><span>          <span style="color:#ff6ac1">return</span> service.<span style="color:#57c7ff">getDefaultEndpoint</span>();
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Ensuite, nous allons créer notre <code>S3Objectrepository.java</code> qui nous permet de
+sauvegarder nos fichiers dans le s3 local :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff9f43">@RequiredArgsConstructor</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff9f43">@Repository</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">public</span> <span style="color:#ff5c57">class</span> <span style="color:#f3f99d">S3ObjectRepository</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff9f43">@Value</span>(<span style="color:#5af78e">&#34;${localaws.region}&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">private</span> String region;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff9f43">@Bean</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff9f43">@ConditionalOnProperty</span>(name <span style="color:#ff6ac1">=</span> <span style="color:#5af78e">&#34;localaws.enabled&#34;</span>, havingValue <span style="color:#ff6ac1">=</span> <span style="color:#5af78e">&#34;false&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#ff5c57">public</span> AmazonS3 <span style="color:#57c7ff">localstackS3Client</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> AmazonS3ClientBuilder.<span style="color:#57c7ff">standard</span>()
+</span></span><span style="display:flex;"><span>      .<span style="color:#57c7ff">withEndpointConfiguration</span>(<span style="color:#ff6ac1">new</span>
+</span></span><span style="display:flex;"><span>AwsClientBuilder.<span style="color:#57c7ff">EndpointConfiguration</span>(EndpointRegistrar.<span style="color:#57c7ff">getS3Endpoint</span>(), region))
+</span></span><span style="display:flex;"><span>      .<span style="color:#57c7ff">withClientConfiguration</span>(<span style="color:#ff6ac1">new</span> ClientConfiguration().<span style="color:#57c7ff">withRequestTimeout</span>(50000))
+</span></span><span style="display:flex;"><span>      .<span style="color:#57c7ff">withPathStyleAccessEnabled</span>(<span style="color:#ff6ac1">true</span>)
+</span></span><span style="display:flex;"><span>      .<span style="color:#57c7ff">build</span>();
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff9f43">@SneakyThrows</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff5c57">public</span> <span style="color:#9aedfe">void</span> <span style="color:#57c7ff">save</span>(<span style="color:#ff5c57">final</span> String bucketName, <span style="color:#ff5c57">final</span> String objectKey, <span style="color:#ff5c57">final</span> <span style="color:#9aedfe">byte</span><span style="color:#ff6ac1">[]</span>
+</span></span><span style="display:flex;"><span>objectContent, <span style="color:#ff5c57">final</span> String objectContentType) {
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">try</span> (<span style="color:#ff5c57">final</span> InputStream byteArrayInputStream <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">new</span> ByteArrayInputStream(objectContent))
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>      <span style="color:#ff5c57">final</span> ObjectMetadata objectMetadata <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">new</span> ObjectMetadata();
+</span></span><span style="display:flex;"><span>      objectMetadata.<span style="color:#57c7ff">setContentLength</span>(objectContent.<span style="color:#57c7ff">length</span>);
+</span></span><span style="display:flex;"><span>      objectMetadata.<span style="color:#57c7ff">setContentType</span>(objectContentType);
+</span></span><span style="display:flex;"><span>      localstackS3Client().<span style="color:#57c7ff">putObject</span>(<span style="color:#ff6ac1">new</span> PutObjectRequest(bucketName, objectKey,
+</span></span><span style="display:flex;"><span>byteArrayInputStream, objectMetadata));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff9f43">@SneakyThrows</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff5c57">public</span> List<span style="color:#ff6ac1">&lt;</span>String<span style="color:#ff6ac1">&gt;</span> <span style="color:#57c7ff">getFilesNames</span>(<span style="color:#ff5c57">final</span> String bucketName) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  ListObjectsV2Result result <span style="color:#ff6ac1">=</span> localstackS3Client().<span style="color:#57c7ff">listObjectsV2</span>(bucketName);
+</span></span><span style="display:flex;"><span>  List<span style="color:#ff6ac1">&lt;</span>S3ObjectSummary<span style="color:#ff6ac1">&gt;</span> objects <span style="color:#ff6ac1">=</span> result.<span style="color:#57c7ff">getObjectSummaries</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#ff6ac1">return</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>objects.<span style="color:#57c7ff">stream</span>().<span style="color:#57c7ff">map</span>(S3ObjectSummary::getKey).<span style="color:#57c7ff">collect</span>(Collectors.<span style="color:#57c7ff">toList</span>());
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Par la suite, nous créons notre contrôleur qui nous permet de charger des fichiers :</p>
+<p><code>FileUploadController.java</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff9f43">@Controller</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff9f43">@Slf4j</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">public</span> <span style="color:#ff5c57">class</span> <span style="color:#f3f99d">FileUploadController</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff9f43">@Autowired</span>
+</span></span><span style="display:flex;"><span>S3ObjectRepository s3ObjectRepository;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff9f43">@Value</span>(<span style="color:#5af78e">&#34;${localaws.s3-bucket.name}&#34;</span>)
+</span></span><span style="display:flex;"><span>String bucketName;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff9f43">@GetMapping</span>(<span style="color:#5af78e">&#34;/bucket/home&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">public</span> String <span style="color:#57c7ff">homePage</span>(Model model) {
+</span></span><span style="display:flex;"><span>retrieveAllFiles(model);
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">return</span> <span style="color:#5af78e">&#34;home&#34;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff9f43">@RequestMapping</span>(value <span style="color:#ff6ac1">=</span> <span style="color:#5af78e">&#34;/bucket/upload&#34;</span>, method <span style="color:#ff6ac1">=</span> RequestMethod.<span style="color:#57c7ff">POST</span>)
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">public</span> String <span style="color:#57c7ff">uploadFile</span>(Model model, <span style="color:#ff9f43">@RequestParam</span>(<span style="color:#5af78e">&#34;file&#34;</span>) MultipartFile file)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">throws</span> IOException {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>log.<span style="color:#57c7ff">info</span>(<span style="color:#5af78e">&#34;uploading the file : &#34;</span><span style="color:#ff6ac1">+</span>file.<span style="color:#57c7ff">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">if</span> (<span style="color:#ff6ac1">!</span>file.<span style="color:#57c7ff">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>String fileName <span style="color:#ff6ac1">=</span> file.<span style="color:#57c7ff">getOriginalFilename</span>();
+</span></span><span style="display:flex;"><span>String fileType <span style="color:#ff6ac1">=</span> file.<span style="color:#57c7ff">getContentType</span>();
+</span></span><span style="display:flex;"><span>InputStream is <span style="color:#ff6ac1">=</span> file.<span style="color:#57c7ff">getInputStream</span>();
+</span></span><span style="display:flex;"><span>s3ObjectRepository.<span style="color:#57c7ff">save</span>(bucketName, fileName, is.<span style="color:#57c7ff">readAllBytes</span>(),
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>fileType);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">return</span> <span style="color:#5af78e">&#34;redirect:/bucket/home&#34;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff5c57">private</span> <span style="color:#9aedfe">void</span> <span style="color:#57c7ff">retrieveAllFiles</span>(Model model) {
+</span></span><span style="display:flex;"><span>List<span style="color:#ff6ac1">&lt;</span>String<span style="color:#ff6ac1">&gt;</span> files <span style="color:#ff6ac1">=</span> s3ObjectRepository.<span style="color:#57c7ff">getFilesNames</span>(bucketName);
+</span></span><span style="display:flex;"><span>model.<span style="color:#57c7ff">addAttribute</span>(<span style="color:#5af78e">&#34;files&#34;</span>, files);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Après, nous créons notre front qui nous permet de charger les fichiers et de les
+envoyer vers le contrôleur.</p>
+<p>Voir le fichier <a href="https://github.com/bmoussat/s3demo/blob/master/src/main/resources/templates/home.html">home.html</a>
+dans le dossier <code>resources/templates</code> de notre projet.</p>
+<h2 id="démo" >
+<div>
+    <a href="#d%c3%a9mo">
+        #
+    </a>
+    Démo
+</div>
+</h2>
+<p>Lancer localstack en exécutant le script <code>start_localasw.sh</code>.</p>
+<p>Lancer le projet Spring Boot avec votre IDE préféré.</p>
+<ul>
+<li>
+<p>Avec eclipse : clique droit sur la racine du projet -&gt; <em>executer comme -&gt; une
+application java</em></p>
+</li>
+<li>
+<p>ou en ligne de commande : <code>mvn spring-boot:run</code></p>
+</li>
+</ul>
+<p>Puis aller dans le navigateur en utilisant le lien suivant :</p>
+<p>http://localhost:8080/bucket/home</p>
+<p>Chargez des fichiers (de moins de 125ko) en utilisant la page web explicite.</p>
+<p><img src="/images/localstack/upload_1.png" alt="home_page_upload_1"></p>
+<p><img src="/images/localstack/upload_2.png" alt="home_page_upload_2"></p>
+<p><img src="/images/localstack/upload_2_1.png" alt="home_page_upload_2_1"></p>
+<p><img src="/images/localstack/upload_3.png" alt="home_page_upload_3"></p>
+<p>Après avoir chargé quelques fichiers, vous pouvez regarder dans votre s3 local
+que les fichiers chargés sont bien dans le bucket, ici notre bucket <code>local- s3-bucket</code>.</p>
+<p>Entrer la commande suivante :</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>aws --endpoint-url<span style="color:#ff6ac1">=</span>http://localhost:4572 s3 ls s3://local-s3-bucket
+</span></span></code></pre></div><p>Vous verrez la liste des fichiers chargés dans votre bucket s3 local.</p>
+<p><img src="/images/localstack/result.png" alt="s3_bucket_result"></p>
+<p>Conclusion :</p>
+<p>Dans cet article, nous avons démarré un service s3 local en utilisant localstack
+lancé dans un conteneur docker, créé un bucket s3 puis chargé les fichiers à
+partir de notre projet Spring Boot.</p>
+        </div>
+
+    </article>
+
+    
+    
+        
+    
+
+    
+        
+        
+    
+
+    
+
+    
+        
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+    
+
+        </main>
+        
+            <footer class="common-footer noselect">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+
+        <div style="display: flex; align-items: center; gap:8px">
+            ©  BachirLOG,  2025
+            
+        </div>
+        <div style="display:flex;align-items: center">
+            
+            
+            
+            
+            
+            
+        </div>
+        <div>
+            
+
+        </div>
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=http://localhost:45787/ class="p-name u-url url fn" rel="me">map[name:BachirLOG]</a>
+
+    
+
+    
+</p>
+
+</footer>
+
+        
+    </div>
+</body>
+</html>

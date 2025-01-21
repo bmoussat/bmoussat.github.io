@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Spring-Boot on BachirLOG</title>
+    <link>/tags/spring-boot/</link>
+    <description>BachirLOG (Spring-Boot)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+      
+
+      
+    
+
+    
+    <lastBuildDate>Wed, 03 Aug 2022 22:15:49 +0100</lastBuildDate>
+    
+    <atom:link href="/tags/spring-boot/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Facilitez vos tests d’intégrations et/ou les améliorer en utilisant les Testcontainers.</title>
+      <link>/posts/testcontainers/</link>
+      <pubDate>Wed, 03 Aug 2022 22:15:49 +0100</pubDate>
+      
+      <guid>/posts/testcontainers/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#introduction&#34;&gt;
+        #
+    &lt;/a&gt;
+    Introduction
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Testcontainers a été créé par Richard North et Sergei Egorov founder en 2015.&lt;/p&gt;
+&lt;p&gt;C&amp;rsquo;est un ensemble de librairies construites au-dessus de docker, que vous pouvez utiliser à chaque fois que vous avez besoin de tester votre code ayant des dépendances externes, comme une base de données, une queue etc &amp;hellip;&lt;/p&gt;
+&lt;p&gt;Pourquoi utiliser Testcontainers&lt;/p&gt;
+&lt;p&gt;Testcontainers facilite l’uniformisation de l’environnement de dev, s’assurer que les applications en cours de développement peuvent être testées indépendamment de l’environnement local d’un développeur spécifique.
+Il permet aussi de faire des tests d’intégrations en utilisant une vraie base de donnée sans quelle ne soit physiquement installée sur la machine  , ce qui rend les tests un peu plus fiables.&lt;/p&gt;
+&lt;p&gt;Introduction au domaine&lt;/p&gt;
+&lt;p&gt;Pour notre article, nous allons utiliser une application springboot avec laquelle je vous montrerai comment écrire un test d’intégration pour une application comportant une base de donnée en utilisant Testcontainers.&lt;/p&gt;
+&lt;p&gt;Notre test d’intégration.
+Vous avez accès au code source de cet article ici (lien gitlab).&lt;/p&gt;
+&lt;h2 id=&#34;1-dépendances&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#1-d%c3%a9pendances&#34;&gt;
+        #
+    &lt;/a&gt;
+    1. Dépendances
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;À part les dépendances spring boot, nous devons rajouter les dépendances suivantes avant de commencer  :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Testcontainers qui nous permettra de lancer la base nécessaire et l&amp;rsquo;éxecution des tests.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Mysql qui est la base de donnée qui sera chargée par testcontainers, puis utilsée afin de valider les tests.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependencies&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;mysql&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;mysql-connector-java&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;runtime&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;mysql&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;compile&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;test&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;junit-jupiter&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;test&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ...
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependencies&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;2-model&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#2-model&#34;&gt;
+        #
+    &lt;/a&gt;
+    2. Model
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Je vous présente notre model qui sera utilisé pour nos différents tests.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Table&lt;/span&gt;(name &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;company&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;Company&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;implements&lt;/span&gt; Serializable{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;/**
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;*
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;*/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;long&lt;/span&gt; serialVersionUID &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; 1L;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff9f43&#34;&gt;@Id&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff9f43&#34;&gt;@GeneratedValue&lt;/span&gt;(strategy &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; GenerationType.&lt;span style=&#34;color:#57c7ff&#34;&gt;AUTO&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff9f43&#34;&gt;@Column&lt;/span&gt;(name &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;, unique &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;true&lt;/span&gt;, nullable &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;false&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;int&lt;/span&gt; id;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String name;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String country;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String city;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Notre model &lt;code&gt;Company&lt;/code&gt; (entreprise ou société) a quatre attributs  :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;id&lt;/code&gt; (identifiant unique)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;name&lt;/code&gt; pour nom,&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;country &lt;/code&gt; pour pays&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;city&lt;/code&gt; pour ville&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Structure du projet  complet  :&lt;/p&gt;
+&lt;p&gt;Je vous présente les services que nous voulons tester :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;interface&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;ICompanyService&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;save&lt;/span&gt;(Company company);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    List&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt;Company&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;getAllCompanies&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;save (Company company)&lt;/code&gt; : nous permet de sauvegarder une entreprise&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;getAllCompanies()&lt;/code&gt;     : nous permet de récupérer toutes les entreprises&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;3-nos-tests&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#3-nos-tests&#34;&gt;
+        #
+    &lt;/a&gt;
+    3. Nos tests
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Pour les tests, nous avons créé une classe &lt;em&gt;&lt;strong&gt;abstraite&lt;/strong&gt;&lt;/em&gt; qui sera notre classe de base qui sera héritée par les classes qui auront besoin de ses éléments, ici la configuration nécessaire à l&amp;rsquo;utilisation de Tesrtcontainers.&lt;/p&gt;
+&lt;p&gt;Dans cette configuration, nous précisons :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;le type de base de donnée que nous souhaitons utiliser -&amp;gt; &lt;code&gt;mysql:8.0&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;le nom de la base de donnée -&amp;gt; &lt;code&gt;app_db&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;les identifiants de connection  -&amp;gt; &lt;code&gt;Username, Password&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;les propriétés pour la source de données du conténaire utilisé&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Cette approche fonctionne pour la plupart des bases de données.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@SpringBootTest&lt;/span&gt;(classes &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; Application.&lt;span style=&#34;color:#57c7ff&#34;&gt;class&lt;/span&gt;, webEnvironment &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; SpringBootTest.&lt;span style=&#34;color:#57c7ff&#34;&gt;WebEnvironment&lt;/span&gt;.&lt;span style=&#34;color:#57c7ff&#34;&gt;RANDOM_PORT&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@ActiveProfiles&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;it&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;abstract&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;BaseIT&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Autowired&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; TestRestTemplate restTemplate;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; MySQLContainer mySQLContainer;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        mySQLContainer &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (MySQLContainer) (&lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; MySQLContainer(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;mysql:8.0&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withUsername&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;root&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withPassword&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withDatabaseName&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;app_db&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withReuse&lt;/span&gt;(&lt;span style=&#34;color:#ff6ac1&#34;&gt;true&lt;/span&gt;));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        mySQLContainer.&lt;span style=&#34;color:#57c7ff&#34;&gt;start&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@DynamicPropertySource&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;setDatasourceProperties&lt;/span&gt;(&lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; DynamicPropertyRegistry registry) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        registry.&lt;span style=&#34;color:#57c7ff&#34;&gt;add&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;spring.datasource.url&amp;#34;&lt;/span&gt;, mySQLContainer::getJdbcUrl);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        registry.&lt;span style=&#34;color:#57c7ff&#34;&gt;add&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;spring.datasource.password&amp;#34;&lt;/span&gt;, mySQLContainer::getPassword);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        registry.&lt;span style=&#34;color:#57c7ff&#34;&gt;add&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;spring.datasource.username&amp;#34;&lt;/span&gt;, mySQLContainer::getUsername);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Après la configuration nous pouvons écrire notre premier test d&amp;rsquo;intégration.
+Pour ce faire, nous avons créé la classe suivante :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;CompanyServiceIT&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;extends&lt;/span&gt; BaseIT {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Autowired&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ICompanyService companyService;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Test&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Sql&lt;/span&gt;({&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;/database/dump_app_db.sql&amp;#34;&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;whenCompanyIsSaveThenCompanyIsinDB&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Company company &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; Company();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        company.&lt;span style=&#34;color:#57c7ff&#34;&gt;setName&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;One company inc&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        company.&lt;span style=&#34;color:#57c7ff&#34;&gt;setCity&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;paris&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        company.&lt;span style=&#34;color:#57c7ff&#34;&gt;setCountry&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;France&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        companyService.&lt;span style=&#34;color:#57c7ff&#34;&gt;save&lt;/span&gt;(company);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        List&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt;Company&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; companies &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; companyService.&lt;span style=&#34;color:#57c7ff&#34;&gt;getAllCompanies&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (companies &lt;span style=&#34;color:#ff6ac1&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;null&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;size&lt;/span&gt;() &lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; 0);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;France&amp;#34;&lt;/span&gt;.&lt;span style=&#34;color:#57c7ff&#34;&gt;equals&lt;/span&gt;(companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;get&lt;/span&gt;(0).&lt;span style=&#34;color:#57c7ff&#34;&gt;getCountry&lt;/span&gt;()));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;get&lt;/span&gt;(0).&lt;span style=&#34;color:#57c7ff&#34;&gt;getId&lt;/span&gt;() &lt;span style=&#34;color:#ff6ac1&#34;&gt;!=&lt;/span&gt; 0);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        System.&lt;span style=&#34;color:#57c7ff&#34;&gt;out&lt;/span&gt;.&lt;span style=&#34;color:#57c7ff&#34;&gt;printf&lt;/span&gt;(String.&lt;span style=&#34;color:#57c7ff&#34;&gt;valueOf&lt;/span&gt;(companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;get&lt;/span&gt;(0)));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Pour pouvoir tester nos enregistrements en base, même si nous avons déjà
+créé la connection à une base de données, notre base est vide.
+Nous nous attendons à avoir une certaine structure concernant la base de donnée, donc il nous faut des tables pour faire nos opérations.
+Pour cela nous avons l&amp;rsquo;annotation spring &lt;code&gt;@Sql&lt;/code&gt; qui prend en paramètre des bumps de base de données ou des scripts sql qui
+nous permettrons d&amp;rsquo;avoir la structure de base de donnée attendue.&lt;/p&gt;
+&lt;p&gt;Voici les parties les plus intéressantes de notre &amp;ldquo;dump&amp;rdquo; sql &lt;code&gt;dump_app_db.sql&lt;/code&gt; :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;DATABASE&lt;/span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;IF&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;EXISTS&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;app_db&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; ;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;USE &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;app_db&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;--
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;-- Table structure for table `company`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;--
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;DROP&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;IF&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;EXISTS&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;company&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;/*!40101 SET @saved_cs_client     = @@character_set_client */&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;/*!50503 SET character_set_client = utf8mb4 */&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;company&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;id&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;int&lt;/span&gt; auto_increment,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;name&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;varchar&lt;/span&gt;(&lt;span style=&#34;color:#ff9f43&#34;&gt;45&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;COLLATE&lt;/span&gt; utf8_general_mysql500_ci &lt;span style=&#34;color:#ff6ac1&#34;&gt;DEFAULT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NULL&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;country&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;varchar&lt;/span&gt;(&lt;span style=&#34;color:#ff9f43&#34;&gt;45&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;COLLATE&lt;/span&gt; utf8_general_mysql500_ci &lt;span style=&#34;color:#ff6ac1&#34;&gt;DEFAULT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NULL&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;city&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;varchar&lt;/span&gt;(&lt;span style=&#34;color:#ff9f43&#34;&gt;45&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;COLLATE&lt;/span&gt; utf8_general_mysql500_ci &lt;span style=&#34;color:#ff6ac1&#34;&gt;DEFAULT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NULL&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         &lt;span style=&#34;color:#ff6ac1&#34;&gt;PRIMARY&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;KEY&lt;/span&gt; (&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;id&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Au lancement, le script sera chargé, puis les tests serons exécutés.&lt;/p&gt;
+&lt;p&gt;Nos tests devraient s&amp;rsquo;exécuter sans erreurs.&lt;/p&gt;
+&lt;h1 id=&#34;conclusion&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#conclusion&#34;&gt;
+        ##
+    &lt;/a&gt;
+    Conclusion
+&lt;/div&gt;
+&lt;/h1&gt;
+&lt;p&gt;Nous avons mis en place une configuration qui nous permet de lancer un test qui contrôle un comportement de notre code
+concernant l&amp;rsquo;accès à la base de données, de sauvegarde de société puis de la recherche et récupération de toutes les
+sociétés en base.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Comment Utiliser plusieurs profils d’application avec Spring Boot</title>
+      <link>/posts/profile/</link>
+      <pubDate>Thu, 23 Jan 2020 08:59:36 +0100</pubDate>
+      
+      <guid>/posts/profile/</guid>
+      <description>&lt;p&gt;Dans ce post, nous allons voir comment utiliser plusieurs profils d’applications dans une même application spring boot.&lt;/p&gt;
+&lt;h2 id=&#34;pourquoi-utiliser-des-profils-&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#pourquoi-utiliser-des-profils-&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Pourquoi utiliser des profils ?&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Selon &lt;em&gt;&lt;strong&gt;larousse.fr&lt;/strong&gt;&lt;/em&gt;, « un profil est un ensemble de caractéristiques qui définissent fondamentalement un type de chose ; configuration de quelque chose à un moment donné ».&lt;/p&gt;
+&lt;p&gt;Lorsque l’on crée une application, il faut la développer, la tester, faire la recette de cette application, la mettre en pré-production puis en production.&lt;/p&gt;
+&lt;p&gt;Pour ces différentes étapes, il faudra plusieurs environnements, donc par conséquent plusieurs configurations, une pour chaque environnement, car les urls des serveurs, les comptes d’accès aux bases de données peuvent être différentes selon que l’on soit en développement ou en production.&lt;/p&gt;
+&lt;p&gt;Dans ce cadre, les profils nous permettent de faciliter et simplifier le changement de configuration selon l’environnement ou on veut déployer l’application.&lt;/p&gt;
+&lt;h2 id=&#34;création-et-utilisation-des-profils&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#cr%c3%a9ation-et-utilisation-des-profils&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Création et utilisation des profils&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;L’une des manières la plus simple de l’utilisation des profils, est de créer plusieurs fichiers &lt;em&gt;&lt;strong&gt;properties&lt;/strong&gt;&lt;/em&gt; avec les valeurs nécessaires au bon fonctionnement de l’application dans l ‘environnement cible.&lt;/p&gt;
+&lt;p&gt;Le nom de ces fichiers &lt;em&gt;&lt;strong&gt;properties&lt;/strong&gt;&lt;/em&gt;, doit être préfixé du mot « &lt;em&gt;&lt;strong&gt;application&lt;/strong&gt;&lt;/em&gt; » suivi du nom de l’environnement cible, séparé par un tiret et avec l’extension « &lt;em&gt;&lt;strong&gt;.properties&lt;/strong&gt;&lt;/em&gt;»&lt;/p&gt;
+&lt;h1 id=&#34;rien-de-mieux-que-la-pratique&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#rien-de-mieux-que-la-pratique&#34;&gt;
+        ##
+    &lt;/a&gt;
+    &lt;strong&gt;Rien de mieux que la pratique&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h1&gt;
+&lt;p&gt;Pour l’environnement de développement, nous allons créer le fichier &lt;em&gt;&lt;strong&gt;application-dev.properties&lt;/strong&gt;&lt;/em&gt; et pour la production, un fichier au nom de : &lt;em&gt;&lt;strong&gt;application-prod.properties.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;rajoutons-nos-nouveaux-profils-dans-notre-projet&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#rajoutons-nos-nouveaux-profils-dans-notre-projet&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Rajoutons nos nouveaux profils dans notre projet.&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Vous pouvez télécharger les sources de cet article &lt;a href=&#34;https://github.com/bmoussat/multi_profile_app%3E&#34;&gt;ici&lt;/a&gt;. Ou bien, vous pouvez rajouter les profils à votre application si vous en avez déjà une.&lt;/p&gt;
+&lt;p&gt;Voici la structure de notre projet après ajout des nouveaux fichiers « &lt;em&gt;&lt;strong&gt;properties&lt;/strong&gt;&lt;/em&gt; » :&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/projectStructure_.png&#34; alt=&#34;Emplacement des fichiers properties&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;maintenant-mettons-du-contenu-dans-nos-fichiers-properties&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#maintenant-mettons-du-contenu-dans-nos-fichiers-properties&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Maintenant mettons du contenu dans nos fichiers &lt;em&gt;properties&lt;/em&gt;:&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;- application-dev.properties :&lt;/em&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-properties&#34; data-lang=&#34;properties&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;1.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.url=jdbc:mysql://localhost:3306/dev?serverTimezone=UTC&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;2.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.username= dev_db_user_login&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;3.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.password=dev_db_user_mdp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;4.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.org.springframework.web= DEBUG&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;5.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.com.concretepage= DEBUG&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;6.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.hibernate.ddl-auto=none&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;7.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.show-sql=true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;em&gt;- application-prod.properties :&lt;/em&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-properties&#34; data-lang=&#34;properties&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;1.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.url=jdbc:mysql://localhost:3306/prod?serverTimezone=UTC&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;2.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.username=prod_db_user_login&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;3.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.password=prod_db_user_mdp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;4.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.org.springframework.web=info&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;5.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.com.concretepage=info&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;6.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.hibernate.ddl-auto=none&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;7.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.show-sql=false&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;un-peu-dexplication&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#un-peu-dexplication&#34;&gt;
+        ##
+    &lt;/a&gt;
+    &lt;strong&gt;Un peu d’explication&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;1 : correspondent aux liens d’accès à la base de données, dont &lt;code&gt;jdbc:mysql://localhost:3306/&lt;/code&gt; qui correspond à l’accès à la base et &lt;code&gt;dev/prod&lt;/code&gt; qui correspondent aux tables de la base de données.&lt;/p&gt;
+&lt;p&gt;2 : correspondent respectivement aux utilisateurs (login) d’accès à la base de données de développement et de production.&lt;/p&gt;
+&lt;p&gt;3 : correspondent respectivement aux mots de passe des utilisateurs d’accès à la base de données de développement et de production.&lt;/p&gt;
+&lt;p&gt;Par conséquent, il faut remplacer &lt;code&gt;dev_db_user_login, prod_db_user_login&lt;/code&gt; par respectivement les noms d’utilisateur de la base de développement et de production puis &lt;code&gt;dev_db_user_mdp, prod_db_user_mdp&lt;/code&gt; par respectivement les mots de passe de développement et production.&lt;/p&gt;
+&lt;p&gt;4 et 5 : concernent le niveau de logs souhaité.&lt;/p&gt;
+&lt;p&gt;Les lignes 6 et 7 : concernent la base de données, plus précisément (juste pour infos car ce n’est pas notre sujet) la ligne 6 permet ou non (selon le mode choisi) de générer la structure des tables à partir des modèles ayant des annotations appropriées contenues dans le projet.&lt;/p&gt;
+&lt;p&gt;Le fichier &lt;em&gt;&lt;strong&gt;application.properties&lt;/strong&gt;&lt;/em&gt; contiendra la propriété qui nous permettra de préciser quelle configuration choisir, soit :&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;spring.profiles.active=dev&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Nous attribuons la valeur « &lt;em&gt;dev&lt;/em&gt; » lorsque nous voulons choisir la configuration pour l’environnement de développement, et la valeur « &lt;em&gt;prod&lt;/em&gt; » lorsque l’on veut choisir la configuration pour l’environnement de production.&lt;/p&gt;
+&lt;p&gt;Grâce à la propriété « &lt;em&gt;&lt;strong&gt;spring.profiles.active&lt;/strong&gt;&lt;/em&gt; », Spring Boot sait quelle configuration charger.&lt;/p&gt;
+&lt;h2 id=&#34;conclusion&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#conclusion&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Conclusion&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Dans cet article, nous avons vu, comment créer de nouveaux profils dans un même projet Spring Boot afin d’avoir plusieurs configurations pour la même application, ce qui facilite la génération de paquets applicatifs pour plusieurs environnements différents.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Utilisation de localStack S3 avec une application Spring Boot</title>
+      <link>/posts/localstack/</link>
+      <pubDate>Fri, 04 Oct 2019 01:54:26 +0100</pubDate>
+      
+      <guid>/posts/localstack/</guid>
+      <description>&lt;p&gt;Dans cet article, nous allons vous montrer comment tester votre application Spring Boot qui utilise
+aws s3 en local avec localstack.&lt;/p&gt;
+&lt;p&gt;Dans un premier temps, nous allons créer un bucket s3, puis utiliser ce bucket pour stocker des
+fichiers, en simulant aws en local avec localstack.&lt;/p&gt;
+&lt;p&gt;Pour cela, nous devrions :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;lancer localstack dans un conteneur docker&lt;/li&gt;
+&lt;li&gt;créer notre bucket&lt;/li&gt;
+&lt;li&gt;lancer notre application, pour lire le bucket s3
+local.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Nous aurons besoin des outils suivants :&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;coté back-end&lt;/th&gt;
+          &lt;th&gt;coté Front-end&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;AWS-cli&lt;/td&gt;
+          &lt;td&gt;thymeleaf&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Docker&lt;/td&gt;
+          &lt;td&gt;bootstrap&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Localstack&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Spring Boot&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Lombok&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Dans cet article, nous avons utilisé le système d’exploitation Ubuntu.&lt;/p&gt;
+&lt;p&gt;Vous pouvez trouver les sources de ce projet ici :
+&lt;a href=&#34;https://github.com/bmoussat/s3demo&#34;&gt;https://github.com/bmoussat/s3demo&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;pourquoi-localstack-&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#pourquoi-localstack-&#34;&gt;
+        #
+    &lt;/a&gt;
+    Pourquoi Localstack ?
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Localstack est un outil qui nous permet de simuler la plupart des services aws en local, donc pas
+besoin de se connecter sur la console aws, ce qui nous permet de :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;travailler hors connexion&lt;/li&gt;
+&lt;li&gt;tester nos applications sans coût,&lt;/li&gt;
+&lt;li&gt;s’isoler par rapport aux autres développeurs concernant les tests et l’utilisation des ressources,
+chacun a ses propres services en local,&lt;/li&gt;
+&lt;li&gt;tout effacer et tout refaire sans difficulté si rien ne vous convient sans coût supplémentaire :-).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;1--installation-initiales&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#1--installation-initiales&#34;&gt;
+        #
+    &lt;/a&gt;
+    1- Installation initiales
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;11---aws-cli-installation-et-configuration&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#11---aws-cli-installation-et-configuration&#34;&gt;
+        ##
+    &lt;/a&gt;
+    1.1-  aws-cli, installation et configuration
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;aws-cli ou &lt;em&gt;Amazon Webservices commande line interface&lt;/em&gt;, permet d’utiliser les services aws en
+ligne de commande.&lt;/p&gt;
+&lt;p&gt;Pour l’installation d&amp;rsquo;aws-cli, il faut entrer la commande suivante :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      sudo snap install aws-cli --classic
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Pour tester si la aws command line interface est bien installée, taper &lt;code&gt;aws --version &lt;/code&gt; dans votre
+console, normalement, vous verrez la version d&amp;rsquo;aws-cli que vous avez installé s’afficher.&lt;/p&gt;
+&lt;h3 id=&#34;12--configuration-de-aws-cli&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#12--configuration-de-aws-cli&#34;&gt;
+        ##
+    &lt;/a&gt;
+    1.2- configuration de aws-cli
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;LocalStack comme AWS a besoin des clés d’accès pour fonctionner, même s’il ne vérifie pas si ces
+clés sont bonnes ou pas, c&amp;rsquo;est-à-dire que nous pouvons mettre de faux identifiants pour nos tests.&lt;/p&gt;
+&lt;p&gt;Pour configurer aws-cli, entrez la commande suivante dans votre console &lt;code&gt;aws configure&lt;/code&gt;, puis
+entrez les informations demandées.
+&lt;br/&gt;&lt;br/&gt;
+&lt;img src=&#34;http://localhost:45787/images/localstack/aws-configure.png&#34; alt=&#34;aws configure&#34;&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Pour information &lt;code&gt;Aws Access key ID&lt;/code&gt;
+et &lt;code&gt;Aws secret Access key&lt;/code&gt; sont les identifiants que vous récupérez lorsque vous créez un compte
+utilisateur appelé ‘IAM user’ dans le jargon aws.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Pour plus d’information sur les IAM user voici un lien qui serait utile.&lt;/p&gt;
+&lt;p&gt;C’est tout pour l’installation et la configuration de AWS-CLI.&lt;/p&gt;
+&lt;h3 id=&#34;13--docker-installation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#13--docker-installation&#34;&gt;
+        ##
+    &lt;/a&gt;
+    1.3- Docker, Installation
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Docker est un conteneur qui permet d’exécuter vos applications correctement et avec le même
+comportement sur n’importe quel environnement, il permet aussi de déployer et de tester nos
+applications très rapidement.&lt;/p&gt;
+&lt;h4 id=&#34;pourquoi-utiliser-docker&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#pourquoi-utiliser-docker&#34;&gt;
+        ###
+    &lt;/a&gt;
+    Pourquoi utiliser Docker?
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;LocalStack peut être lancé dans un conteneur docker ou directement sur la machine courante.
+Nous avons choisi de le lancer avec docker pour découvrir cette techno, donc pour voir un cas
+pratique d’utilisation de ce conteneur, car il est très utile et populaire.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Quelques avantages de docker :&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;pas besoin d’installer localstack sur la machine directement,&lt;/li&gt;
+&lt;li&gt;simplifie la configuration&lt;/li&gt;
+&lt;li&gt;isole les applications,&lt;/li&gt;
+&lt;li&gt;reploiement rapide et simple des applications&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Pour installer Docker, entrez la commande suivante&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;snap install docker 
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;ou&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo apt-get install docker.io
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;C’est tout pour l’installation de docker, nous verrons par la suite comment le lancer pour localstack.&lt;/p&gt;
+&lt;p&gt;Prochaine étape, installation et utilisation et configuration de localstack&lt;/p&gt;
+&lt;h3 id=&#34;14--localstack-installation-et-configuration&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#14--localstack-installation-et-configuration&#34;&gt;
+        ##
+    &lt;/a&gt;
+    1.4- LocalStack, Installation et configuration
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Nous avons besoin de python pip pour l’installation de localstack, nous vous laissons le soin de faire l&amp;rsquo;installation selon la version de votre système.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Pour installer localstack entré la commande suivante dans votre terminal :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install localstack
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Pour tester si localstack se lance bien, entrer la commande :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; localstack start --docker
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Cette commande nous permet de lancer localstack dans un conteneur docker.&lt;/p&gt;
+&lt;h2 id=&#34;2--création-des-scripts-de-lancement&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#2--cr%c3%a9ation-des-scripts-de-lancement&#34;&gt;
+        #
+    &lt;/a&gt;
+    2- Création des scripts de lancement
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Rapel : Notre objectif est de créer un bucket s3, puis utiliser ce bucket pour
+stocker des fichiers, en simulant aws en local utilisant localstack.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Le script que nous allons créer, nous permettra d’automatiser le lancement de
+localstack et la création de notre &lt;em&gt;bucket s3&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Pour cela, nous allons utiliser &lt;code&gt;docker-compose.yml&lt;/code&gt;, qui est un fichier que docker
+recherche dans le répertoire courant lorsque l’on utilise la commande &lt;code&gt;docker- compose&lt;/code&gt;. Nous verrons un peu plus loin à quoi sert cette commande.&lt;/p&gt;
+&lt;p&gt;Ce fichier nous permet de donner des instructions de configuration docker pour
+le lancement d’image docker, ici l’image que nous voulons lancer est celle de
+Localstack.&lt;/p&gt;
+&lt;p&gt;Voici à quoi ressemble notre fichier &lt;code&gt;docker-compose.yml&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;&lt;span&gt;version: &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;3.7&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;&lt;span&gt;services:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;&lt;span&gt;  localstack:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span&gt;    image: localstack/localstack:latest
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;&lt;span&gt;    ports:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;&lt;span&gt;      - &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;4567-4585:4567-4585&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;&lt;span&gt;    environment:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;&lt;span&gt;      - &lt;span style=&#34;color:#ff5c57&#34;&gt;DEFAULT_REGION&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;eu-central-1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;&lt;span&gt;      - &lt;span style=&#34;color:#ff5c57&#34;&gt;SERVICES&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;s3:4572
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;&lt;span&gt;    network_mode: &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;host&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;&lt;span&gt;    environment:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;&lt;span&gt;      - &lt;span style=&#34;color:#ff5c57&#34;&gt;AWS_REGION&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;eu-central-1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;&lt;span&gt;    volumes:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;&lt;span&gt;      - &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;./.localstack:/tmp/localstack&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;&lt;span&gt;      -
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span style=&#34;white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17&lt;/span&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;/var/run/docker.sock:/var/run/docker.sock&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Explication :&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;La ligne 5,
+nous permet d’utiliser la dernière version de l&amp;rsquo;image localstack venant de DockerHub.&lt;/p&gt;
+&lt;p&gt;La ligne 6,7,
+&lt;code&gt;Ports : &amp;quot;4567-4585:4567-4585&amp;quot;&lt;/code&gt; correspondes aux ports exposés et la
+correspondance des ports côté docker et côté machine courante.&lt;/p&gt;
+&lt;p&gt;La ligne 10, &lt;code&gt;SERVICES=s3:4572&lt;/code&gt;
+permet de lancer le service s3 de localstack sur le port &lt;code&gt;4572&lt;/code&gt;.
+Ici, nous définissons les services de localstack que nous voulons lancer &lt;code&gt;S3&lt;/code&gt;. Si par
+exemple, nous voulons lancer les services sqs et/ou sns en plus, nous écrivons :&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;SERVICES=s3,sqs,sns.&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;21-le-script-start_localawssh&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#21-le-script-start_localawssh&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.1 Le script &lt;code&gt;start_localaws.sh&lt;/code&gt;
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Nous allons créer notre fichier de lancement de l’image localstack dans le
+conteneur docker ainsi que la création de notre bucket s3.&lt;/p&gt;
+&lt;p&gt;Voici à quoi ressemble notre fichier &lt;code&gt;start_localaws.sh&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;#!/bin/bash
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker-compose -p localaws up -d
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# waits  a few seconds for localstack docker container to start&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sleep &lt;span style=&#34;color:#ff9f43&#34;&gt;5&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# s3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;aws --endpoint-url&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;http://localhost:4572 s3 mb s3://local-s3-bucket
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Un peu d’explication :&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;docker-compose -p localaws up -d&lt;/code&gt; : nous permet de lancer localstack dans un
+container docker en utilisant le fichier docker-compose.yml que nous avons créé
+plus haut.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;`&lt;/span&gt;aws --endpoint-url&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;http://localhost:4572 s3 mb s3://local-s3-bucket&lt;span style=&#34;color:#5af78e&#34;&gt;`&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Est la commande aws-cli qui nous permet de créer un bucket s3 au nom de &lt;code&gt;local- s3-bucket&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Aprés avoir créé le fichier et donné les droits nécessaires pour l&amp;rsquo;exécution,
+vous pouvez exécuter votre script pour lancer localstack et créer votre bucket
+s3 :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;./start_localaws.sh
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;br/&gt;&lt;br/&gt;
+&lt;img src=&#34;http://localhost:45787/images/localstack/start_localstack.png&#34; alt=&#34;start_localstack&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br/&gt;&lt;br/&gt;
+Super! Vous venez de lancer localstack, et vous avez créé un bucket s3 nommé
+&lt;code&gt;local-s3-bucket&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Pour vérifier que votre bucket s3 est bien créé, entrez la commande suivante :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;aws --endpoint-url&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;http://localhost:4572 s3 ls
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Normalement, vous verrez la liste de vos bucket s3 local, ici en l&amp;rsquo;occurrence :
+&lt;code&gt;local-s3-bucket&lt;/code&gt;.
+&lt;br&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:45787/images/localstack/ls_aws_s3_bucket.png&#34; alt=&#34;ls_aws_s3_bucket&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;22-le-script-stop_localawssh&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#22-le-script-stop_localawssh&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.2 Le script &lt;code&gt;stop_localaws.sh&lt;/code&gt;
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Pour arrêter docker et donc nos services localstack, nous utilisons la commande
+suivante :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker-compose -p localaws down
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Nous allons mettre cette commande dans un fichier nommé &lt;code&gt;stop_localaws.sh&lt;/code&gt; pour simplifier l&amp;rsquo;arrêt
+de docker.&lt;/p&gt;
+&lt;p&gt;Voici à quoi ressemblera notre fichier &lt;code&gt;stop_localasw.sh&lt;/code&gt; :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;#!/bin/bash
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker-compose -p localaws down
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Faisons un petit recap :&lt;/p&gt;
+&lt;p&gt;Jusque-là, nous avons créé les fichiers suivants :&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/localstack/script_folder.png&#34; alt=&#34;script_folder&#34;&gt;&lt;/p&gt;
+&lt;p&gt;C&amp;rsquo;est tout pour les scripts, passons à notre application Spring Boot utilisatrice de notre bucket s3.&lt;/p&gt;
+&lt;h2 id=&#34;3--lapplication-spring-boot&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#3--lapplication-spring-boot&#34;&gt;
+        #
+    &lt;/a&gt;
+    3- L’application Spring Boot
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Maintenant que nous avons créé notre bucket s3 local, utilisons ce stockage
+avec une application Spring Boot.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Pour cet exemple, nous ne pouvons charger que des fichiers de moins de 125ko.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Voici la structure de notre application Spring Boot&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/localstack/spring_boot_project_structure.png&#34; alt=&#34;Spring Boot project structure&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Dans un premier temps, nous allons créer notre souscripteur au Endpoint
+localstack :&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;EndpointRegistrar.java&lt;/code&gt; :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;@UtilityClass&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;EndpointRegistrar&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff9f43&#34;&gt;@Getter&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff9f43&#34;&gt;@AllArgsConstructor&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;enum&lt;/span&gt; Service {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    S3(ServiceName.&lt;span style=&#34;color:#57c7ff&#34;&gt;S3&lt;/span&gt;, &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;http://localhost:4572&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String name;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String defaultEndpoint;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; String &lt;span style=&#34;color:#57c7ff&#34;&gt;getS3Endpoint&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; getServiceEndpoint(Service.&lt;span style=&#34;color:#57c7ff&#34;&gt;S3&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; String &lt;span style=&#34;color:#57c7ff&#34;&gt;getServiceEndpoint&lt;/span&gt;(&lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; Service service) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#ff6ac1&#34;&gt;try&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; LocalstackDocker.&lt;span style=&#34;color:#57c7ff&#34;&gt;INSTANCE&lt;/span&gt;.&lt;span style=&#34;color:#57c7ff&#34;&gt;endpointForService&lt;/span&gt;(service.&lt;span style=&#34;color:#57c7ff&#34;&gt;getName&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      } &lt;span style=&#34;color:#ff6ac1&#34;&gt;catch&lt;/span&gt; (&lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; Exception e) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; service.&lt;span style=&#34;color:#57c7ff&#34;&gt;getDefaultEndpoint&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Ensuite, nous allons créer notre &lt;code&gt;S3Objectrepository.java&lt;/code&gt; qui nous permet de
+sauvegarder nos fichiers dans le s3 local :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@RequiredArgsConstructor&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Repository&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;S3ObjectRepository&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Value&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;${localaws.region}&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String region;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff9f43&#34;&gt;@Bean&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff9f43&#34;&gt;@ConditionalOnProperty&lt;/span&gt;(name &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;localaws.enabled&amp;#34;&lt;/span&gt;, havingValue &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;false&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; AmazonS3 &lt;span style=&#34;color:#57c7ff&#34;&gt;localstackS3Client&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; AmazonS3ClientBuilder.&lt;span style=&#34;color:#57c7ff&#34;&gt;standard&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .&lt;span style=&#34;color:#57c7ff&#34;&gt;withEndpointConfiguration&lt;/span&gt;(&lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;AwsClientBuilder.&lt;span style=&#34;color:#57c7ff&#34;&gt;EndpointConfiguration&lt;/span&gt;(EndpointRegistrar.&lt;span style=&#34;color:#57c7ff&#34;&gt;getS3Endpoint&lt;/span&gt;(), region))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .&lt;span style=&#34;color:#57c7ff&#34;&gt;withClientConfiguration&lt;/span&gt;(&lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; ClientConfiguration().&lt;span style=&#34;color:#57c7ff&#34;&gt;withRequestTimeout&lt;/span&gt;(50000))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .&lt;span style=&#34;color:#57c7ff&#34;&gt;withPathStyleAccessEnabled&lt;/span&gt;(&lt;span style=&#34;color:#ff6ac1&#34;&gt;true&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .&lt;span style=&#34;color:#57c7ff&#34;&gt;build&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff9f43&#34;&gt;@SneakyThrows&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;save&lt;/span&gt;(&lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; String bucketName, &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; String objectKey, &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;byte&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;[]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;objectContent, &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; String objectContentType) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;try&lt;/span&gt; (&lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; InputStream byteArrayInputStream &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; ByteArrayInputStream(objectContent))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; ObjectMetadata objectMetadata &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; ObjectMetadata();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      objectMetadata.&lt;span style=&#34;color:#57c7ff&#34;&gt;setContentLength&lt;/span&gt;(objectContent.&lt;span style=&#34;color:#57c7ff&#34;&gt;length&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      objectMetadata.&lt;span style=&#34;color:#57c7ff&#34;&gt;setContentType&lt;/span&gt;(objectContentType);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      localstackS3Client().&lt;span style=&#34;color:#57c7ff&#34;&gt;putObject&lt;/span&gt;(&lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; PutObjectRequest(bucketName, objectKey,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;byteArrayInputStream, objectMetadata));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff9f43&#34;&gt;@SneakyThrows&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; List&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt;String&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;getFilesNames&lt;/span&gt;(&lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; String bucketName) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ListObjectsV2Result result &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; localstackS3Client().&lt;span style=&#34;color:#57c7ff&#34;&gt;listObjectsV2&lt;/span&gt;(bucketName);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  List&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt;S3ObjectSummary&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; objects &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; result.&lt;span style=&#34;color:#57c7ff&#34;&gt;getObjectSummaries&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;objects.&lt;span style=&#34;color:#57c7ff&#34;&gt;stream&lt;/span&gt;().&lt;span style=&#34;color:#57c7ff&#34;&gt;map&lt;/span&gt;(S3ObjectSummary::getKey).&lt;span style=&#34;color:#57c7ff&#34;&gt;collect&lt;/span&gt;(Collectors.&lt;span style=&#34;color:#57c7ff&#34;&gt;toList&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Par la suite, nous créons notre contrôleur qui nous permet de charger des fichiers :&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;FileUploadController.java&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Controller&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Slf4j&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;FileUploadController&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Autowired&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;S3ObjectRepository s3ObjectRepository;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Value&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;${localaws.s3-bucket.name}&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;String bucketName;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@GetMapping&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;/bucket/home&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; String &lt;span style=&#34;color:#57c7ff&#34;&gt;homePage&lt;/span&gt;(Model model) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;retrieveAllFiles(model);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;home&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@RequestMapping&lt;/span&gt;(value &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;/bucket/upload&amp;#34;&lt;/span&gt;, method &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; RequestMethod.&lt;span style=&#34;color:#57c7ff&#34;&gt;POST&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; String &lt;span style=&#34;color:#57c7ff&#34;&gt;uploadFile&lt;/span&gt;(Model model, &lt;span style=&#34;color:#ff9f43&#34;&gt;@RequestParam&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;file&amp;#34;&lt;/span&gt;) MultipartFile file)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;throws&lt;/span&gt; IOException {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;log.&lt;span style=&#34;color:#57c7ff&#34;&gt;info&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;uploading the file : &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt;file.&lt;span style=&#34;color:#57c7ff&#34;&gt;getName&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#ff6ac1&#34;&gt;!&lt;/span&gt;file.&lt;span style=&#34;color:#57c7ff&#34;&gt;isEmpty&lt;/span&gt;()) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;String fileName &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; file.&lt;span style=&#34;color:#57c7ff&#34;&gt;getOriginalFilename&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;String fileType &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; file.&lt;span style=&#34;color:#57c7ff&#34;&gt;getContentType&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;InputStream is &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; file.&lt;span style=&#34;color:#57c7ff&#34;&gt;getInputStream&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;s3ObjectRepository.&lt;span style=&#34;color:#57c7ff&#34;&gt;save&lt;/span&gt;(bucketName, fileName, is.&lt;span style=&#34;color:#57c7ff&#34;&gt;readAllBytes&lt;/span&gt;(),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fileType);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;redirect:/bucket/home&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;retrieveAllFiles&lt;/span&gt;(Model model) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;List&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt;String&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; files &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; s3ObjectRepository.&lt;span style=&#34;color:#57c7ff&#34;&gt;getFilesNames&lt;/span&gt;(bucketName);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;model.&lt;span style=&#34;color:#57c7ff&#34;&gt;addAttribute&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;files&amp;#34;&lt;/span&gt;, files);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Après, nous créons notre front qui nous permet de charger les fichiers et de les
+envoyer vers le contrôleur.&lt;/p&gt;
+&lt;p&gt;Voir le fichier &lt;a href=&#34;https://github.com/bmoussat/s3demo/blob/master/src/main/resources/templates/home.html&#34;&gt;home.html&lt;/a&gt;
+dans le dossier &lt;code&gt;resources/templates&lt;/code&gt; de notre projet.&lt;/p&gt;
+&lt;h2 id=&#34;démo&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#d%c3%a9mo&#34;&gt;
+        #
+    &lt;/a&gt;
+    Démo
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Lancer localstack en exécutant le script &lt;code&gt;start_localasw.sh&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Lancer le projet Spring Boot avec votre IDE préféré.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Avec eclipse : clique droit sur la racine du projet -&amp;gt; &lt;em&gt;executer comme -&amp;gt; une
+application java&lt;/em&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;ou en ligne de commande : &lt;code&gt;mvn spring-boot:run&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Puis aller dans le navigateur en utilisant le lien suivant :&lt;/p&gt;
+&lt;p&gt;http://localhost:8080/bucket/home&lt;/p&gt;
+&lt;p&gt;Chargez des fichiers (de moins de 125ko) en utilisant la page web explicite.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/localstack/upload_1.png&#34; alt=&#34;home_page_upload_1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/localstack/upload_2.png&#34; alt=&#34;home_page_upload_2&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/localstack/upload_2_1.png&#34; alt=&#34;home_page_upload_2_1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/localstack/upload_3.png&#34; alt=&#34;home_page_upload_3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Après avoir chargé quelques fichiers, vous pouvez regarder dans votre s3 local
+que les fichiers chargés sont bien dans le bucket, ici notre bucket &lt;code&gt;local- s3-bucket&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Entrer la commande suivante :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;aws --endpoint-url&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;http://localhost:4572 s3 ls s3://local-s3-bucket
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Vous verrez la liste des fichiers chargés dans votre bucket s3 local.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/localstack/result.png&#34; alt=&#34;s3_bucket_result&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Conclusion :&lt;/p&gt;
+&lt;p&gt;Dans cet article, nous avons démarré un service s3 local en utilisant localstack
+lancé dans un conteneur docker, créé un bucket s3 puis chargé les fichiers à
+partir de notre projet Spring Boot.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

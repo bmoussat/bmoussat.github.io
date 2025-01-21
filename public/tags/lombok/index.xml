@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Lombok on BachirLOG</title>
+    <link>/tags/lombok/</link>
+    <description>BachirLOG (Lombok)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+      
+
+      
+    
+
+    
+    <lastBuildDate>Wed, 03 Aug 2022 22:15:49 +0100</lastBuildDate>
+    
+    <atom:link href="/tags/lombok/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Facilitez vos tests d’intégrations et/ou les améliorer en utilisant les Testcontainers.</title>
+      <link>/posts/testcontainers/</link>
+      <pubDate>Wed, 03 Aug 2022 22:15:49 +0100</pubDate>
+      
+      <guid>/posts/testcontainers/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#introduction&#34;&gt;
+        #
+    &lt;/a&gt;
+    Introduction
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Testcontainers a été créé par Richard North et Sergei Egorov founder en 2015.&lt;/p&gt;
+&lt;p&gt;C&amp;rsquo;est un ensemble de librairies construites au-dessus de docker, que vous pouvez utiliser à chaque fois que vous avez besoin de tester votre code ayant des dépendances externes, comme une base de données, une queue etc &amp;hellip;&lt;/p&gt;
+&lt;p&gt;Pourquoi utiliser Testcontainers&lt;/p&gt;
+&lt;p&gt;Testcontainers facilite l’uniformisation de l’environnement de dev, s’assurer que les applications en cours de développement peuvent être testées indépendamment de l’environnement local d’un développeur spécifique.
+Il permet aussi de faire des tests d’intégrations en utilisant une vraie base de donnée sans quelle ne soit physiquement installée sur la machine  , ce qui rend les tests un peu plus fiables.&lt;/p&gt;
+&lt;p&gt;Introduction au domaine&lt;/p&gt;
+&lt;p&gt;Pour notre article, nous allons utiliser une application springboot avec laquelle je vous montrerai comment écrire un test d’intégration pour une application comportant une base de donnée en utilisant Testcontainers.&lt;/p&gt;
+&lt;p&gt;Notre test d’intégration.
+Vous avez accès au code source de cet article ici (lien gitlab).&lt;/p&gt;
+&lt;h2 id=&#34;1-dépendances&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#1-d%c3%a9pendances&#34;&gt;
+        #
+    &lt;/a&gt;
+    1. Dépendances
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;À part les dépendances spring boot, nous devons rajouter les dépendances suivantes avant de commencer  :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Testcontainers qui nous permettra de lancer la base nécessaire et l&amp;rsquo;éxecution des tests.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Mysql qui est la base de donnée qui sera chargée par testcontainers, puis utilsée afin de valider les tests.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependencies&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;mysql&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;mysql-connector-java&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;runtime&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;mysql&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;compile&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;test&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.testcontainers&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;junit-jupiter&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;test&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ...
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;/dependencies&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;2-model&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#2-model&#34;&gt;
+        #
+    &lt;/a&gt;
+    2. Model
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Je vous présente notre model qui sera utilisé pour nos différents tests.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@Table&lt;/span&gt;(name &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;company&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;Company&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;implements&lt;/span&gt; Serializable{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;/**
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;*
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;*/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;long&lt;/span&gt; serialVersionUID &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; 1L;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff9f43&#34;&gt;@Id&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff9f43&#34;&gt;@GeneratedValue&lt;/span&gt;(strategy &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; GenerationType.&lt;span style=&#34;color:#57c7ff&#34;&gt;AUTO&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff9f43&#34;&gt;@Column&lt;/span&gt;(name &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;, unique &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;true&lt;/span&gt;, nullable &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;false&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;int&lt;/span&gt; id;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String name;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String country;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; String city;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Notre model &lt;code&gt;Company&lt;/code&gt; (entreprise ou société) a quatre attributs  :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;id&lt;/code&gt; (identifiant unique)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;name&lt;/code&gt; pour nom,&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;country &lt;/code&gt; pour pays&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;city&lt;/code&gt; pour ville&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Structure du projet  complet  :&lt;/p&gt;
+&lt;p&gt;Je vous présente les services que nous voulons tester :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;interface&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;ICompanyService&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;save&lt;/span&gt;(Company company);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    List&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt;Company&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;getAllCompanies&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;save (Company company)&lt;/code&gt; : nous permet de sauvegarder une entreprise&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;getAllCompanies()&lt;/code&gt;     : nous permet de récupérer toutes les entreprises&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;3-nos-tests&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#3-nos-tests&#34;&gt;
+        #
+    &lt;/a&gt;
+    3. Nos tests
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Pour les tests, nous avons créé une classe &lt;em&gt;&lt;strong&gt;abstraite&lt;/strong&gt;&lt;/em&gt; qui sera notre classe de base qui sera héritée par les classes qui auront besoin de ses éléments, ici la configuration nécessaire à l&amp;rsquo;utilisation de Tesrtcontainers.&lt;/p&gt;
+&lt;p&gt;Dans cette configuration, nous précisons :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;le type de base de donnée que nous souhaitons utiliser -&amp;gt; &lt;code&gt;mysql:8.0&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;le nom de la base de donnée -&amp;gt; &lt;code&gt;app_db&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;les identifiants de connection  -&amp;gt; &lt;code&gt;Username, Password&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;les propriétés pour la source de données du conténaire utilisé&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Cette approche fonctionne pour la plupart des bases de données.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@SpringBootTest&lt;/span&gt;(classes &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; Application.&lt;span style=&#34;color:#57c7ff&#34;&gt;class&lt;/span&gt;, webEnvironment &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; SpringBootTest.&lt;span style=&#34;color:#57c7ff&#34;&gt;WebEnvironment&lt;/span&gt;.&lt;span style=&#34;color:#57c7ff&#34;&gt;RANDOM_PORT&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;@ActiveProfiles&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;it&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;abstract&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;BaseIT&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Autowired&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; TestRestTemplate restTemplate;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; MySQLContainer mySQLContainer;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        mySQLContainer &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (MySQLContainer) (&lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; MySQLContainer(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;mysql:8.0&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withUsername&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;root&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withPassword&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withDatabaseName&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;app_db&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .&lt;span style=&#34;color:#57c7ff&#34;&gt;withReuse&lt;/span&gt;(&lt;span style=&#34;color:#ff6ac1&#34;&gt;true&lt;/span&gt;));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        mySQLContainer.&lt;span style=&#34;color:#57c7ff&#34;&gt;start&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@DynamicPropertySource&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff5c57&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;setDatasourceProperties&lt;/span&gt;(&lt;span style=&#34;color:#ff5c57&#34;&gt;final&lt;/span&gt; DynamicPropertyRegistry registry) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        registry.&lt;span style=&#34;color:#57c7ff&#34;&gt;add&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;spring.datasource.url&amp;#34;&lt;/span&gt;, mySQLContainer::getJdbcUrl);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        registry.&lt;span style=&#34;color:#57c7ff&#34;&gt;add&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;spring.datasource.password&amp;#34;&lt;/span&gt;, mySQLContainer::getPassword);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        registry.&lt;span style=&#34;color:#57c7ff&#34;&gt;add&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;spring.datasource.username&amp;#34;&lt;/span&gt;, mySQLContainer::getUsername);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Après la configuration nous pouvons écrire notre premier test d&amp;rsquo;intégration.
+Pour ce faire, nous avons créé la classe suivante :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff5c57&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#f3f99d&#34;&gt;CompanyServiceIT&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;extends&lt;/span&gt; BaseIT {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Autowired&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ICompanyService companyService;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Test&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff9f43&#34;&gt;@Sql&lt;/span&gt;({&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;/database/dump_app_db.sql&amp;#34;&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#9aedfe&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;whenCompanyIsSaveThenCompanyIsinDB&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Company company &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;new&lt;/span&gt; Company();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        company.&lt;span style=&#34;color:#57c7ff&#34;&gt;setName&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;One company inc&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        company.&lt;span style=&#34;color:#57c7ff&#34;&gt;setCity&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;paris&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        company.&lt;span style=&#34;color:#57c7ff&#34;&gt;setCountry&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;France&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        companyService.&lt;span style=&#34;color:#57c7ff&#34;&gt;save&lt;/span&gt;(company);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        List&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt;Company&lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; companies &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; companyService.&lt;span style=&#34;color:#57c7ff&#34;&gt;getAllCompanies&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (companies &lt;span style=&#34;color:#ff6ac1&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;null&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;size&lt;/span&gt;() &lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; 0);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;France&amp;#34;&lt;/span&gt;.&lt;span style=&#34;color:#57c7ff&#34;&gt;equals&lt;/span&gt;(companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;get&lt;/span&gt;(0).&lt;span style=&#34;color:#57c7ff&#34;&gt;getCountry&lt;/span&gt;()));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;assert&lt;/span&gt; (companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;get&lt;/span&gt;(0).&lt;span style=&#34;color:#57c7ff&#34;&gt;getId&lt;/span&gt;() &lt;span style=&#34;color:#ff6ac1&#34;&gt;!=&lt;/span&gt; 0);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        System.&lt;span style=&#34;color:#57c7ff&#34;&gt;out&lt;/span&gt;.&lt;span style=&#34;color:#57c7ff&#34;&gt;printf&lt;/span&gt;(String.&lt;span style=&#34;color:#57c7ff&#34;&gt;valueOf&lt;/span&gt;(companies.&lt;span style=&#34;color:#57c7ff&#34;&gt;get&lt;/span&gt;(0)));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Pour pouvoir tester nos enregistrements en base, même si nous avons déjà
+créé la connection à une base de données, notre base est vide.
+Nous nous attendons à avoir une certaine structure concernant la base de donnée, donc il nous faut des tables pour faire nos opérations.
+Pour cela nous avons l&amp;rsquo;annotation spring &lt;code&gt;@Sql&lt;/code&gt; qui prend en paramètre des bumps de base de données ou des scripts sql qui
+nous permettrons d&amp;rsquo;avoir la structure de base de donnée attendue.&lt;/p&gt;
+&lt;p&gt;Voici les parties les plus intéressantes de notre &amp;ldquo;dump&amp;rdquo; sql &lt;code&gt;dump_app_db.sql&lt;/code&gt; :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;DATABASE&lt;/span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;IF&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;EXISTS&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;app_db&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; ;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;USE &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;app_db&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;--
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;-- Table structure for table `company`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;--
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;DROP&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;IF&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;EXISTS&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;company&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;/*!40101 SET @saved_cs_client     = @@character_set_client */&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;/*!50503 SET character_set_client = utf8mb4 */&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;company&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;id&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;int&lt;/span&gt; auto_increment,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;name&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;varchar&lt;/span&gt;(&lt;span style=&#34;color:#ff9f43&#34;&gt;45&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;COLLATE&lt;/span&gt; utf8_general_mysql500_ci &lt;span style=&#34;color:#ff6ac1&#34;&gt;DEFAULT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NULL&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;country&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;varchar&lt;/span&gt;(&lt;span style=&#34;color:#ff9f43&#34;&gt;45&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;COLLATE&lt;/span&gt; utf8_general_mysql500_ci &lt;span style=&#34;color:#ff6ac1&#34;&gt;DEFAULT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NULL&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         &lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;city&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;varchar&lt;/span&gt;(&lt;span style=&#34;color:#ff9f43&#34;&gt;45&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;COLLATE&lt;/span&gt; utf8_general_mysql500_ci &lt;span style=&#34;color:#ff6ac1&#34;&gt;DEFAULT&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;NULL&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         &lt;span style=&#34;color:#ff6ac1&#34;&gt;PRIMARY&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;KEY&lt;/span&gt; (&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;id&lt;span style=&#34;color:#ff6ac1&#34;&gt;`&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Au lancement, le script sera chargé, puis les tests serons exécutés.&lt;/p&gt;
+&lt;p&gt;Nos tests devraient s&amp;rsquo;exécuter sans erreurs.&lt;/p&gt;
+&lt;h1 id=&#34;conclusion&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#conclusion&#34;&gt;
+        ##
+    &lt;/a&gt;
+    Conclusion
+&lt;/div&gt;
+&lt;/h1&gt;
+&lt;p&gt;Nous avons mis en place une configuration qui nous permet de lancer un test qui contrôle un comportement de notre code
+concernant l&amp;rsquo;accès à la base de données, de sauvegarde de société puis de la recherche et récupération de toutes les
+sociétés en base.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

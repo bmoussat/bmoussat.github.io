@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Profils on BachirLOG</title>
+    <link>/tags/profils/</link>
+    <description>BachirLOG (Profils)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+      
+
+      
+    
+
+    
+    <lastBuildDate>Thu, 23 Jan 2020 08:59:36 +0100</lastBuildDate>
+    
+    <atom:link href="/tags/profils/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Comment Utiliser plusieurs profils d’application avec Spring Boot</title>
+      <link>/posts/profile/</link>
+      <pubDate>Thu, 23 Jan 2020 08:59:36 +0100</pubDate>
+      
+      <guid>/posts/profile/</guid>
+      <description>&lt;p&gt;Dans ce post, nous allons voir comment utiliser plusieurs profils d’applications dans une même application spring boot.&lt;/p&gt;
+&lt;h2 id=&#34;pourquoi-utiliser-des-profils-&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#pourquoi-utiliser-des-profils-&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Pourquoi utiliser des profils ?&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Selon &lt;em&gt;&lt;strong&gt;larousse.fr&lt;/strong&gt;&lt;/em&gt;, « un profil est un ensemble de caractéristiques qui définissent fondamentalement un type de chose ; configuration de quelque chose à un moment donné ».&lt;/p&gt;
+&lt;p&gt;Lorsque l’on crée une application, il faut la développer, la tester, faire la recette de cette application, la mettre en pré-production puis en production.&lt;/p&gt;
+&lt;p&gt;Pour ces différentes étapes, il faudra plusieurs environnements, donc par conséquent plusieurs configurations, une pour chaque environnement, car les urls des serveurs, les comptes d’accès aux bases de données peuvent être différentes selon que l’on soit en développement ou en production.&lt;/p&gt;
+&lt;p&gt;Dans ce cadre, les profils nous permettent de faciliter et simplifier le changement de configuration selon l’environnement ou on veut déployer l’application.&lt;/p&gt;
+&lt;h2 id=&#34;création-et-utilisation-des-profils&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#cr%c3%a9ation-et-utilisation-des-profils&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Création et utilisation des profils&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;L’une des manières la plus simple de l’utilisation des profils, est de créer plusieurs fichiers &lt;em&gt;&lt;strong&gt;properties&lt;/strong&gt;&lt;/em&gt; avec les valeurs nécessaires au bon fonctionnement de l’application dans l ‘environnement cible.&lt;/p&gt;
+&lt;p&gt;Le nom de ces fichiers &lt;em&gt;&lt;strong&gt;properties&lt;/strong&gt;&lt;/em&gt;, doit être préfixé du mot « &lt;em&gt;&lt;strong&gt;application&lt;/strong&gt;&lt;/em&gt; » suivi du nom de l’environnement cible, séparé par un tiret et avec l’extension « &lt;em&gt;&lt;strong&gt;.properties&lt;/strong&gt;&lt;/em&gt;»&lt;/p&gt;
+&lt;h1 id=&#34;rien-de-mieux-que-la-pratique&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#rien-de-mieux-que-la-pratique&#34;&gt;
+        ##
+    &lt;/a&gt;
+    &lt;strong&gt;Rien de mieux que la pratique&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h1&gt;
+&lt;p&gt;Pour l’environnement de développement, nous allons créer le fichier &lt;em&gt;&lt;strong&gt;application-dev.properties&lt;/strong&gt;&lt;/em&gt; et pour la production, un fichier au nom de : &lt;em&gt;&lt;strong&gt;application-prod.properties.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;rajoutons-nos-nouveaux-profils-dans-notre-projet&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#rajoutons-nos-nouveaux-profils-dans-notre-projet&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Rajoutons nos nouveaux profils dans notre projet.&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Vous pouvez télécharger les sources de cet article &lt;a href=&#34;https://github.com/bmoussat/multi_profile_app%3E&#34;&gt;ici&lt;/a&gt;. Ou bien, vous pouvez rajouter les profils à votre application si vous en avez déjà une.&lt;/p&gt;
+&lt;p&gt;Voici la structure de notre projet après ajout des nouveaux fichiers « &lt;em&gt;&lt;strong&gt;properties&lt;/strong&gt;&lt;/em&gt; » :&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:45787/images/projectStructure_.png&#34; alt=&#34;Emplacement des fichiers properties&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;maintenant-mettons-du-contenu-dans-nos-fichiers-properties&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#maintenant-mettons-du-contenu-dans-nos-fichiers-properties&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Maintenant mettons du contenu dans nos fichiers &lt;em&gt;properties&lt;/em&gt;:&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;- application-dev.properties :&lt;/em&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-properties&#34; data-lang=&#34;properties&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;1.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.url=jdbc:mysql://localhost:3306/dev?serverTimezone=UTC&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;2.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.username= dev_db_user_login&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;3.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.password=dev_db_user_mdp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;4.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.org.springframework.web= DEBUG&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;5.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.com.concretepage= DEBUG&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;6.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.hibernate.ddl-auto=none&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;7.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.show-sql=true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;em&gt;- application-prod.properties :&lt;/em&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-properties&#34; data-lang=&#34;properties&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;1.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.url=jdbc:mysql://localhost:3306/prod?serverTimezone=UTC&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;2.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.username=prod_db_user_login&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;3.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.datasource.password=prod_db_user_mdp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;4.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.org.springframework.web=info&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;5.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;logging.level.com.concretepage=info&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;6.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.hibernate.ddl-auto=none&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#57c7ff&#34;&gt;7.&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;spring.jpa.show-sql=false&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;un-peu-dexplication&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#un-peu-dexplication&#34;&gt;
+        ##
+    &lt;/a&gt;
+    &lt;strong&gt;Un peu d’explication&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;1 : correspondent aux liens d’accès à la base de données, dont &lt;code&gt;jdbc:mysql://localhost:3306/&lt;/code&gt; qui correspond à l’accès à la base et &lt;code&gt;dev/prod&lt;/code&gt; qui correspondent aux tables de la base de données.&lt;/p&gt;
+&lt;p&gt;2 : correspondent respectivement aux utilisateurs (login) d’accès à la base de données de développement et de production.&lt;/p&gt;
+&lt;p&gt;3 : correspondent respectivement aux mots de passe des utilisateurs d’accès à la base de données de développement et de production.&lt;/p&gt;
+&lt;p&gt;Par conséquent, il faut remplacer &lt;code&gt;dev_db_user_login, prod_db_user_login&lt;/code&gt; par respectivement les noms d’utilisateur de la base de développement et de production puis &lt;code&gt;dev_db_user_mdp, prod_db_user_mdp&lt;/code&gt; par respectivement les mots de passe de développement et production.&lt;/p&gt;
+&lt;p&gt;4 et 5 : concernent le niveau de logs souhaité.&lt;/p&gt;
+&lt;p&gt;Les lignes 6 et 7 : concernent la base de données, plus précisément (juste pour infos car ce n’est pas notre sujet) la ligne 6 permet ou non (selon le mode choisi) de générer la structure des tables à partir des modèles ayant des annotations appropriées contenues dans le projet.&lt;/p&gt;
+&lt;p&gt;Le fichier &lt;em&gt;&lt;strong&gt;application.properties&lt;/strong&gt;&lt;/em&gt; contiendra la propriété qui nous permettra de préciser quelle configuration choisir, soit :&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;spring.profiles.active=dev&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Nous attribuons la valeur « &lt;em&gt;dev&lt;/em&gt; » lorsque nous voulons choisir la configuration pour l’environnement de développement, et la valeur « &lt;em&gt;prod&lt;/em&gt; » lorsque l’on veut choisir la configuration pour l’environnement de production.&lt;/p&gt;
+&lt;p&gt;Grâce à la propriété « &lt;em&gt;&lt;strong&gt;spring.profiles.active&lt;/strong&gt;&lt;/em&gt; », Spring Boot sait quelle configuration charger.&lt;/p&gt;
+&lt;h2 id=&#34;conclusion&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#conclusion&#34;&gt;
+        #
+    &lt;/a&gt;
+    &lt;strong&gt;Conclusion&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Dans cet article, nous avons vu, comment créer de nouveaux profils dans un même projet Spring Boot afin d’avoir plusieurs configurations pour la même application, ce qui facilite la génération de paquets applicatifs pour plusieurs environnements différents.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
