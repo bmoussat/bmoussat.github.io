@@ -1,0 +1,13 @@
+.anubis-custom-style {
+    background-color: pink;
+    color: black;
+    padding: 1em;
+    border-radius: 0.3em;
+    border: 1px solid black;
+}
+.post-title.draft::after {
+    content: "";
+    display: inline-block;
+    margin-left: 0.2em;
+}
+
