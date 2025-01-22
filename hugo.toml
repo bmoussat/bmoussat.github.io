@@ -1,4 +1,4 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://bachirlog.dev/'
 languageCode = 'en-us'
 title = 'BachirLOG'
 theme = "anubis2"
