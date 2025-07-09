@@ -14,4 +14,4 @@ J'ai créé ce blog pour partager mes connaissances et mes expériences dans le 
 Je vous souhaite une bonne lecture et n'hésitez pas à me contacter pour toute question ou suggestion.
 <br/><br/>
 Vous pouvez me trouver sur [linkedin](https://www.linkedin.com/in/bachir-moussa-tari-bako-99668354/)
-et sur [github](https://github.com/bmoussat/) ou bien vous pouvez tout simplement télécharger mon [CV](/doc/CV_BMO_blog.pdf).
+et sur [github](https://github.com/bmoussat/).
